@@ -13,3 +13,6 @@ export const getSecureValue: (alias: string) => Promise<string> =
 
 export const canUseSecureStorage: () => Promise<boolean> =
   BetterRnKeychain.canUseSecureStorage;
+
+export const deleteSecureValue: (alias: string) => Promise<void> =
+  BetterRnKeychain.deleteSecureValue;

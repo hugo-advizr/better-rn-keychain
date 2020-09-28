@@ -26,4 +26,11 @@ RCT_EXTERN_METHOD(
                   withRejecter:(RCTPromiseRejectBlock)reject
                   )
 
+RCT_EXTERN_METHOD(
+                  deleteSecureValue:(NSString *)alias
+                  withResolver:(RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject
+                  )
+
 @end
+

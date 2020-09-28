@@ -55,6 +55,10 @@ class CryptographyManager {
     return getKeyStore().containsAlias(alias)
   }
 
+  fun deleteAlias(alias: String) {
+    getKeyStore().deleteEntry(alias)
+  }
+
   fun encryptData(plainText: String, cipher: Cipher): ByteArray {
     return cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
   }

@@ -83,4 +83,19 @@ class BetterRnKeychain: NSObject {
             }
         }
     }
+    
+    @objc(deleteSecureValue:withResolver:withRejecter:)
+    func deleteSecureValue(alias: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        let keychain = Keychain()
+        
+        DispatchQueue.global().async {
+            do {
+                try keychain.remove(alias)
+                
+                resolve(nil)
+            } catch let error as NSError {
+                reject(String(error.code), error.localizedDescription, error)
+            }
+        }
+    }
 }

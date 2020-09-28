@@ -48,7 +48,11 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
 
   @ReactMethod
   fun hasSecureValue(alias: String, promise: Promise) {
-    promise.resolve(cryptographyManager.hasAlias(alias))
+    try {
+      promise.resolve(cryptographyManager.hasAlias(alias))
+    } catch (e: Exception) {
+      promise.reject(null, e.localizedMessage)
+    }
   }
 
   @RequiresApi(Build.VERSION_CODES.M)
@@ -79,6 +83,17 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
       } catch (e: Exception) {
         promise.reject(null, e.localizedMessage)
       }
+    }
+  }
+
+  @ReactMethod
+  fun deleteSecureValue(alias: String, promise: Promise) {
+    try {
+      cryptographyManager.deleteAlias(alias)
+
+      promise.resolve(null)
+    } catch (e: Exception) {
+      promise.reject(null, e.localizedMessage)
     }
   }
 
