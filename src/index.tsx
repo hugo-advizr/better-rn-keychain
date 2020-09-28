@@ -1,9 +1,15 @@
 import { NativeModules } from 'react-native';
 
-type BetterRnKeychainType = {
-  multiply(a: number, b: number): Promise<number>;
-};
-
 const { BetterRnKeychain } = NativeModules;
 
-export default BetterRnKeychain as BetterRnKeychainType;
+export const hasSecureValue: (alias: string) => Promise<boolean> =
+  BetterRnKeychain.hasSecureValue;
+
+export const setSecureValue: (alias: string, secret: string) => Promise<void> =
+  BetterRnKeychain.setSecureValue;
+
+export const getSecureValue: (alias: string) => Promise<string> =
+  BetterRnKeychain.getSecureValue;
+
+export const canUseSecureStorage: () => Promise<boolean> =
+  BetterRnKeychain.canUseSecureStorage;
