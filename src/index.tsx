@@ -8,7 +8,7 @@ export const hasSecureValue: (alias: string) => Promise<boolean> =
 export const setSecureValue: (alias: string, secret: string) => Promise<void> =
   BetterRnKeychain.setSecureValue;
 
-export const getSecureValue: (alias: string) => Promise<string> =
+export const getSecureValue: (alias: string) => Promise<string | undefined> =
   BetterRnKeychain.getSecureValue;
 
 export const canUseSecureStorage: () => Promise<boolean> =

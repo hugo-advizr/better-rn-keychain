@@ -55,7 +55,11 @@ class BetterRnKeychain: NSObject {
                 
                 resolve(password)
             } catch let error as NSError {
-                reject(String(error.code), error.localizedDescription, error)
+                if (error.code == -128) { // user canceled
+                    resolve(nil)
+                } else {
+                    reject(String(error.code), error.localizedDescription, error)
+                }
             }
         }
     }

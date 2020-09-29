@@ -3,7 +3,6 @@ package com.betterrnkeychain
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import androidx.annotation.RequiresApi
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
@@ -31,7 +30,6 @@ class CryptographyManager {
   private val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1
   private val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_RSA
 
-  @RequiresApi(Build.VERSION_CODES.M)
   fun getInitializedCipherForEncryption(alias: String): Cipher {
     getKeyStore().deleteEntry(alias)
 
@@ -42,7 +40,6 @@ class CryptographyManager {
     return cipher
   }
 
-  @RequiresApi(Build.VERSION_CODES.M)
   fun getInitializedCipherForDecryption(alias: String): Cipher {
     val cipher = getCipher()
 
@@ -79,7 +76,6 @@ class CryptographyManager {
     return keyStore
   }
 
-  @RequiresApi(Build.VERSION_CODES.M)
   private fun getOrCreateSecretKey(alias: String): KeyPair {
 
     val keyStore = getKeyStore()
@@ -101,6 +97,9 @@ class CryptographyManager {
       setKeySize(2048)
       setRandomizedEncryptionRequired(true)
       setUserAuthenticationRequired(true)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        setInvalidatedByBiometricEnrollment(false)
+      }
     }
 
     val keyGenParams = paramsBuilder.build()

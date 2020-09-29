@@ -1,15 +1,14 @@
 package com.betterrnkeychain
 
-import android.os.Build
 import android.preference.PreferenceManager
 import android.util.Base64
-import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.facebook.react.bridge.*
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
+import kotlinx.coroutines.*
 import java.lang.Exception
 
 class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -23,7 +22,11 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
       override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
         super.onAuthenticationError(errorCode, errString)
 
-        promise.reject(errorCode.toString(), errString.toString())
+        if (errorCode == 13) { // user canceled
+          promise.resolve(null)
+        } else {
+          promise.reject(errorCode.toString(), errString.toString())
+        }
       }
 
       override fun onAuthenticationFailed() {
@@ -51,37 +54,38 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
     try {
       promise.resolve(cryptographyManager.hasAlias(alias))
     } catch (e: Exception) {
-      promise.reject(null, e.localizedMessage)
+      promise.reject(null, e)
     }
   }
 
-  @RequiresApi(Build.VERSION_CODES.M)
   @ReactMethod
   fun setSecureValue(alias: String, secret: String, promise: Promise) {
-    try {
-      val cipher = cryptographyManager.getInitializedCipherForEncryption(alias)
 
-      val cipherText = Base64.encodeToString(cryptographyManager.encryptData(secret, cipher), Base64.NO_WRAP)
+        GlobalScope.launch(Dispatchers.Default) {
+          try {
+          val cipher = cryptographyManager.getInitializedCipherForEncryption(alias)
 
-      PreferenceManager.getDefaultSharedPreferences(reactContext).edit().putString(alias, cipherText).apply()
+          val cipherText = Base64.encodeToString(cryptographyManager.encryptData(secret, cipher), Base64.NO_WRAP)
 
-      promise.resolve(null)
-    } catch (e: Exception) {
-      promise.reject(null, e.localizedMessage)
-    }
+          PreferenceManager.getDefaultSharedPreferences(reactContext).edit().putString(alias, cipherText).apply()
+
+          promise.resolve(null)
+          } catch (e: Exception) {
+            promise.reject(null, e)
+          }
+        }
 
   }
 
-  @RequiresApi(Build.VERSION_CODES.M)
   @ReactMethod
   fun getSecureValue(alias: String, promise: Promise) {
-    val cipher = cryptographyManager.getInitializedCipherForDecryption(alias)
-
     runOnUiThread {
       try {
+        val cipher = cryptographyManager.getInitializedCipherForDecryption(alias)
+
         createBiometricPrompt(alias, promise).authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
       } catch (e: Exception) {
-        promise.reject(null, e.localizedMessage)
+        promise.reject(null, e)
       }
     }
   }
@@ -93,7 +97,7 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
 
       promise.resolve(null)
     } catch (e: Exception) {
-      promise.reject(null, e.localizedMessage)
+      promise.reject(null, e)
     }
   }
 

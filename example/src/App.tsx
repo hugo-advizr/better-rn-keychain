@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   canUseSecureStorage,
   getSecureValue,
-  hasSecureValue,
   setSecureValue,
 } from 'better-rn-keychain';
 
@@ -21,26 +20,33 @@ export default function App() {
 
   const encryptValue = useCallback(async () => {
     await setSecureValue('key', clearText);
+
+    console.log('Encrypted');
   }, [clearText]);
 
   const decryptValue = useCallback(async () => {
-    if (await hasSecureValue('key')) {
-      setDecryptedValue(await getSecureValue('key'));
-    }
+    const decrypted = await getSecureValue('key');
+
+    setDecryptedValue(decrypted);
+
+    console.log(decrypted);
   }, [setDecryptedValue]);
 
   return (
     <SafeAreaView>
       <Text>Can use secure storage: {hasSecureStorage.toString()}</Text>
+      {hasSecureStorage && (
+        <>
+          <Text>Clear text</Text>
+          <TextInput value={clearText} onChangeText={setClearText} />
 
-      <Text>Clear text</Text>
-      <TextInput value={clearText} onChangeText={setClearText} />
+          <Text>Decrypted value: {decryptedValue}</Text>
 
-      <Text>Decrypted value: {decryptedValue}</Text>
+          <Button title="encrypt" onPress={encryptValue} />
 
-      <Button title="encrypt" onPress={encryptValue} />
-
-      <Button title="decrypt" onPress={decryptValue} />
+          <Button title="decrypt" onPress={decryptValue} />
+        </>
+      )}
     </SafeAreaView>
   );
 }
