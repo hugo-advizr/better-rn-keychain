@@ -38,9 +38,13 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
       override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
         super.onAuthenticationSucceeded(result)
 
-        val cipherText = Base64.decode(PreferenceManager.getDefaultSharedPreferences(reactContext).getString(alias, null), Base64.NO_WRAP)
+        val cipherText = PreferenceManager.getDefaultSharedPreferences(reactContext).getString(alias, null)
 
-        promise.resolve(cryptographyManager.decryptData(cipherText, result.cryptoObject?.cipher!!))
+        if (cipherText != null) {
+          promise.resolve(cryptographyManager.decryptData(Base64.decode(cipherText, Base64.NO_WRAP), result.cryptoObject?.cipher!!))
+        } else {
+          promise.resolve(null)
+        }
       }
     }
 
@@ -103,7 +107,7 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
 
   @ReactMethod
   fun canUseSecureStorage(promise: Promise) {
-    promise.resolve(BiometricManager.from(reactContext).canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS)
+    promise.resolve(BiometricManager.from(reactContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS)
   }
 
   override fun getName(): String {
