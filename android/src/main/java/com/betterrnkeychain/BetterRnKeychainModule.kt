@@ -107,7 +107,7 @@ class BetterRnKeychainModule(private val reactContext: ReactApplicationContext) 
 
   @ReactMethod
   fun canUseSecureStorage(promise: Promise) {
-    promise.resolve(BiometricManager.from(reactContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS)
+    promise.resolve(BiometricManager.from(reactContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS)
   }
 
   override fun getName(): String {
